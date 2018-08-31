@@ -44,7 +44,7 @@ BithumbRESTAPI.prototype.getQuotes = function(timeInterval) {
         redisClient.set(RedisHeartBeatTable,true);
         const parseCoin = Object.keys(response.data.data);
 
-        // _saveOrderbook(self.Market, parseCoin, response.data.data);
+        _saveOrderbook(self.Market, parseCoin, response.data.data);
 
       }
     })
@@ -52,7 +52,7 @@ BithumbRESTAPI.prototype.getQuotes = function(timeInterval) {
       if(error) {
         console.log(`${self.Market} Request Error`);
         console.log(error);
-        // redisClient.set(RedisHeartBeatTable, false);
+        redisClient.set(RedisHeartBeatTable, false);
       }
     });
   }

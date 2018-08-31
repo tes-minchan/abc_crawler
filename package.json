@@ -13,15 +13,19 @@
     "url": "https://github.com/tes-minchan/abc_crawler/issues"
   },
   "homepage": "https://github.com/tes-minchan/abc_crawler#readme",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_PATH=src nodemon --watch src/ src/index.js"
-  },
   "dependencies": {
+    "async": "^2.6.1",
     "axios": "^0.18.0",
+    "bluebird": "^3.5.1",
     "lodash": "^4.17.10",
+    "mysql": "^2.16.0",
     "redis": "^2.8.0",
     "sleep": "^5.2.3",
     "ws-reconnect": "^1.0.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "NODE_PATH=src nodemon --watch src/ src/index.js",
+    "crawler": "NODE_PATH=src nodemon src/lib/script/observer.js"
   }
 }

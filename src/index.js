@@ -1,6 +1,5 @@
 const _ = require('lodash');
 
-
 const config = require('config').marketConfig;
 const { bithumbCrawler, coinoneCrawler, upbitCrawler, gopaxCrawler } = require('lib/crawler');
 
@@ -36,7 +35,6 @@ const GopaxCrawler = new gopaxCrawler();
 config.gopax.coin_list.forEach(coin => {
   GopaxCrawler.getQuotes(coin, 800);
 });
-
 
 
 

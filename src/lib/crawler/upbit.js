@@ -52,6 +52,7 @@ UpbitWS.prototype.getQuotes = function() {
     };
     
     let currencyList = upbitConfig.coin_list.map(coin => {
+      console.log(`${self.Market} subscribe ${coin}`);
       return `KRW-${coin}`
     });
   
