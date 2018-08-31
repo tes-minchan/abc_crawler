@@ -1,0 +1,18 @@
+{
+  "apps": [
+    {
+      "name": "crawler",
+      "script": "./src",
+      "env": {
+        "NODE_PATH": "src"
+      }
+    },
+    {
+      "name": "observer",
+      "script": "./src/lib/script/observer.js",
+      "env": {
+        "NODE_PATH": "src"
+      }
+    }
+  ]
+}
