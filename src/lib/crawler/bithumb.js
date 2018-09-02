@@ -24,7 +24,6 @@ const axios = require('axios');
 const config      = require('config');
 const redisClient = redis.createClient(config.redisConfig);
 
-
 function BithumbRESTAPI () {
 
   this.Market       = "BITHUMB";
@@ -69,10 +68,9 @@ BithumbRESTAPI.prototype.getQuotes = function(timeInterval) {
 
 function _saveOrderbook (market, coinArr, orderbookObj) {
   coinArr.forEach(coin => {
-
     if(coin === 'timestamp' || coin === 'payment_currency') 
-      return;
-
+    return;
+        
     const RedisAskHashTable = `${market}_${coin}KRW_ASK`;
 
     redisClient.del(RedisAskHashTable);

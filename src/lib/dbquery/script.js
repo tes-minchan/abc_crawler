@@ -47,8 +47,7 @@ module.exports = {
             callback(err, connection);
           } 
           else {
-            const curr_time = new Date();
-            console.log("success to save DB, ",curr_time);
+            console.log("success to save DB");
             callback(null, connection);
           }
         }

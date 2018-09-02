@@ -7,6 +7,15 @@ const marketConfig = require('config').marketConfig;
 const redisClient = require('lib/redis');
 const redis_table = [];
 
+
+// Process exception 
+process.on('uncaughtException', function (err) {
+  console.error(err.stack);
+  console.log("Node NOT Exiting...");
+});
+
+
+
 // make redis table to get coin prices
 marketConfig.bithumb.coin_list.forEach(coin => {
   redis_table.push(['hgetall',`BITHUMB_${coin}KRW_ASK`]);
@@ -48,7 +57,6 @@ const observer = () => {
             console.log("connection.commit error : ", error);
             connection.rollback(function () {
               connection.release();
-
             });
           }
           else {

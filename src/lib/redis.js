@@ -13,6 +13,9 @@ module.exports = {
   },
 
 
+  getHashTable : (table) => {
+    return redisClient.hgetallAsync(table);
+  }
   
 
 

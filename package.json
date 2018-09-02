@@ -26,6 +26,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_PATH=src nodemon --watch src/ src/index.js",
+    "crawler": "NODE_PATH=src node src/index.js",
+    "observer": "NODE_PATH=src node src/lib/script/observer.js",
     "start:dev": "pm2 start deploy.config.json"
   }
 }
