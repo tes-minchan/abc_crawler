@@ -29,7 +29,7 @@ module.exports = {
           saveData.market = redis_table[index][1].split('_')[0];
           saveData.currency = redis_table[index][1].split('_')[1].replace('KRW','');
   
-          sql_query += `INSERT INTO observe_coin_test (curr_time, ask, ask_vol, bid, bid_vol, currency, market) VALUES (NOW(), "${saveData.ask}", "${saveData.askVol}", "${saveData.bid}", "${saveData.bidVol}", "${saveData.currency}", "${saveData.market}" );`;
+          sql_query += `INSERT INTO observe_coin (curr_time, ask, ask_vol, bid, bid_vol, currency, market) VALUES (NOW(), "${saveData.ask}", "${saveData.askVol}", "${saveData.bid}", "${saveData.bidVol}", "${saveData.currency}", "${saveData.market}" );`;
         }
         else {
           saveData.ask = Object.keys(item)[0];
