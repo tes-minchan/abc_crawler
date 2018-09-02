@@ -33,7 +33,7 @@ CoinoneCrawler.checkHeartBeat();
 
 const GopaxCrawler = new gopaxCrawler();
 config.gopax.coin_list.forEach(coin => {
-  GopaxCrawler.getQuotes(coin, 800);
+  GopaxCrawler.getQuotes(coin, 1000);
 });
 
 

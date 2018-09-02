@@ -22,14 +22,14 @@ module.exports = {
       else {
         if(index%2 !== 0) {
           const getIndex = Object.keys(item).length - 1;
-  
+
           saveData.bid = Object.keys(item)[getIndex];
           saveData.bidVol = Object.values(item)[getIndex];
   
           saveData.market = redis_table[index][1].split('_')[0];
           saveData.currency = redis_table[index][1].split('_')[1].replace('KRW','');
   
-          sql_query += `INSERT INTO observe_coin (curr_time, ask, ask_vol, bid, bid_vol, currency, market) VALUES (NOW(), "${saveData.ask}", "${saveData.askVol}", "${saveData.bid}", "${saveData.bidVol}", "${saveData.currency}", "${saveData.market}" );`;
+          sql_query += `INSERT INTO observe_coin_test (curr_time, ask, ask_vol, bid, bid_vol, currency, market) VALUES (NOW(), "${saveData.ask}", "${saveData.askVol}", "${saveData.bid}", "${saveData.bidVol}", "${saveData.currency}", "${saveData.market}" );`;
         }
         else {
           saveData.ask = Object.keys(item)[0];
@@ -47,6 +47,8 @@ module.exports = {
             callback(err, connection);
           } 
           else {
+            const curr_time = new Date();
+            console.log("success to save DB, ",curr_time);
             callback(null, connection);
           }
         }

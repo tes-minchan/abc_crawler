@@ -5,7 +5,6 @@ const dbScript = require('lib/dbquery/script');
 const marketConfig = require('config').marketConfig;
 
 const redisClient = require('lib/redis');
-
 const redis_table = [];
 
 // make redis table to get coin prices
@@ -54,7 +53,6 @@ const observer = () => {
           }
           else {
             connection.release();
-
           }
         });
       }

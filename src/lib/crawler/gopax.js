@@ -54,8 +54,6 @@ GopaxRESTAPI.prototype.getQuotes = function(CURRENCY, timeInterval) {
             const RedisBidHashTable = `${self.Market}_${CURRENCY}KRW_BID`;
             
             redisClient.del(RedisAskHashTable);
-            redisClient.del(RedisBidHashTable);
-    
             response.data.ask.forEach((orderbook, index) => {
               if(index > 20) {
                 return;
@@ -63,6 +61,7 @@ GopaxRESTAPI.prototype.getQuotes = function(CURRENCY, timeInterval) {
               redisClient.hset(RedisAskHashTable,orderbook[1],orderbook[2]);
             });
     
+            redisClient.del(RedisBidHashTable);
             response.data.bid.forEach((orderbook, index) => {
               if(index > 20) {
                 return;

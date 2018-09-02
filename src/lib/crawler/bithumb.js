@@ -74,15 +74,14 @@ function _saveOrderbook (market, coinArr, orderbookObj) {
       return;
 
     const RedisAskHashTable = `${market}_${coin}KRW_ASK`;
-    const RedisBidHashTable = `${market}_${coin}KRW_BID`;
 
     redisClient.del(RedisAskHashTable);
-    redisClient.del(RedisBidHashTable);
-
     orderbookObj[coin].asks.forEach(orderbook => {
       redisClient.hset(RedisAskHashTable,orderbook.price,orderbook.quantity);
     });
 
+    const RedisBidHashTable = `${market}_${coin}KRW_BID`;
+    redisClient.del(RedisBidHashTable);
     orderbookObj[coin].bids.forEach(orderbook => {
       redisClient.hset(RedisBidHashTable,orderbook.price,orderbook.quantity);
     });
