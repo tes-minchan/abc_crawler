@@ -37,38 +37,46 @@ marketConfig.gopax.coin_list.forEach(coin => {
   redis_table.push(['hgetall',`GOPAX_${coin}KRW_BID`]);
 });
 
-const observer = () => {
+let enableSave = true;
+
+const observer = (connection) => {
   redisClient.getMultiTable(redis_table)
-  .then(res => {
-    async.waterfall([
-      db.getConnection,
-      db.beginTRX,
-      async.apply(dbScript.dbUpdateCryptoObserve, res, redis_table)
-    ], (error, connection, result) => {
-      if(error) {
-        console.log("getMultiTable error : ", error);
-        connection.rollback(function() {
-          connection.release();
-        });
-      }
-      else {
-        connection.commit(function (error) {
-          if (error) {
-            console.log("connection.commit error : ", error);
-            connection.rollback(function () {
-              connection.release();
-            });
-          }
-          else {
-            connection.release();
-          }
-        });
-      }
-    });
+  .then(res => {   
+
+    if(enableSave) {
+      enableSave = false;
+      async.waterfall([
+        async.apply(db.beginTRX, connection),
+        async.apply(dbScript.dbUpdateCryptoObserve, res, redis_table)
+      ], (error, connection, result) => {
+        if(error) {
+          console.log("getMultiTable error : ", error);
+          enableSave = true;
+        }
+        else {
+          connection.commit(function (error) {
+            if (error) {
+              console.log("connection.commit error : ", error);
+              connection.rollback();
+            }
+            else {
+              const curr_time = new Date();
+              console.log(curr_time, " success to save db");
+            }
+          });
+          enableSave = true;
+        }
+      });
+    }
+
+
   });
 }
 
-setInterval(observer, 1000);
+db.getConnection(function (error, connection) {
+  setInterval(observer, 1000, connection);
+});
+
 
 
 
