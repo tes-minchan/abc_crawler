@@ -24,10 +24,9 @@
     "ws-reconnect": "^1.0.5"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_PATH=src nodemon --watch src/ src/index.js",
+    "test": "NODE_PATH=src node src/worker/observer",
+    "start": "pm2 start deploy.config.json",
     "crawler": "NODE_PATH=src node src/index.js",
-    "observer": "NODE_PATH=src node src/lib/script/observer.js",
-    "start:dev": "pm2 start deploy.config.json"
+    "observer": "NODE_PATH=src node src/worker/observer"
   }
 }

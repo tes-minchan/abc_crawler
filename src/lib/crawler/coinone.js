@@ -64,7 +64,7 @@ CoinoneWS.prototype.getQuotes = function(BASE_CURRENCY, QUOTE_CURRENCY) {
     // set websocket send term.
     sleep.msleep(100);
 
-    subscribe = `42/orderbook,["subscribe", "${BASE_CURRENCY}", ${_.find(coinoneConfig.coin_list, (coin) => { return coin.name === BASE_CURRENCY; }).option}]`;
+    subscribe = `42/orderbook,["subscribe", "${BASE_CURRENCY}", ${_.find(coinoneConfig.coinInfo, (coin) => { return coin.name === BASE_CURRENCY; }).ws_option}]`;
 
     wsclient.socket.send(subscribe);
 
