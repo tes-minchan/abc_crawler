@@ -6,19 +6,12 @@ const observer = (redisTable) => {
 
   let enableSave = true;
   redisClient.getMultiTable(redisTable)
-  .then(res => {
+  .then(async (res) => {
     if(enableSave) {
       enableSave = false;
-
-      fileSave.fileUpdateCryptoObserve(res, redisTable, (error) => {
-        if(error) {
-          console.log(error);
-          enableSave = true;
-        }
-        else {
-          enableSave = true;
-        }
-      });
+      
+      await fileSave.fileUpdateCryptoObserve(res, redisTable);  
+      enableSave = true;
 
     }
 
