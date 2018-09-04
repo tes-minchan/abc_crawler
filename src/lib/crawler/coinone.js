@@ -34,6 +34,7 @@ function CoinoneWS () {
 
   this.Market       = "COINONE";
   this.WebsocketURL = "wss://push.coinone.co.kr/socket.io/?EIO=3&transport=websocket";
+  this.redisClient  = redis.createClient(config.redisConfig);
 
 }
 
@@ -48,7 +49,6 @@ CoinoneWS.prototype.getQuotes = function(BASE_CURRENCY, QUOTE_CURRENCY) {
   const wsclient            = new wsClient(this.WebsocketURL, coinoneConfig.connection_option);
   const RedisAskHashTable   = `${this.Market}_${BASE_CURRENCY}${QUOTE_CURRENCY}_ASK`;
   const RedisBidHashTable   = `${this.Market}_${BASE_CURRENCY}${QUOTE_CURRENCY}_BID`;
-  const redisClient         = redis.createClient(config.redisConfig);
 
   let init = true;
   
@@ -71,51 +71,51 @@ CoinoneWS.prototype.getQuotes = function(BASE_CURRENCY, QUOTE_CURRENCY) {
   });
 
   wsclient.on("message",function(get_data){
-    let dataType = _getDataType(get_data);
+    const dataType = _getDataType(get_data);
 
     if(dataType === `42`) {
-      let parseOrderbook = JSON.parse(get_data.replace('42/orderbook,',''));
+      const parseOrderbook = JSON.parse(get_data.replace('42/orderbook,',''));
 
-      let ask_price      = JSON.parse(parseOrderbook[1].ASK);
-      let bid_price      = JSON.parse(parseOrderbook[1].BID); 
+      const ask_price = JSON.parse(parseOrderbook[1].ASK);
+      const bid_price = JSON.parse(parseOrderbook[1].BID); 
 
       if(init) {
 
         // Reset ASK && BID Orderbook Redis Table.
-        redisClient.del(RedisAskHashTable);
-        redisClient.del(RedisBidHashTable);
+        self.redisClient.del(RedisAskHashTable);
+        self.redisClient.del(RedisBidHashTable);
         init = false;
 
         // Save ASK orderbook to redis table.
         ask_price.forEach(askItem => {
-          let calculateVol = askItem.qty / volumeCalculate;
-          redisClient.hset(RedisAskHashTable,askItem.price,calculateVol);
+          const calculateVol = askItem.qty / volumeCalculate;
+          self.redisClient.hset(RedisAskHashTable,askItem.price,calculateVol);
         });
 
         // Save BID orderbook to redis table.
         bid_price.forEach(bidItem => {
-          let calculateVol = bidItem.qty / volumeCalculate;
-          redisClient.hset(RedisBidHashTable,bidItem.price,calculateVol);
+          const calculateVol = bidItem.qty / volumeCalculate;
+          self.redisClient.hset(RedisBidHashTable,bidItem.price,calculateVol);
         });
 
       }
       else {
         // only if orderbook diff is exist, save to redis.
         if(parseOrderbook[1].DIFF.ASK.length > 0) {
-          redisClient.del(RedisAskHashTable);
+          self.redisClient.del(RedisAskHashTable);
 
           ask_price.forEach(askItem => {
-            let calculateVol = askItem.qty / volumeCalculate;
-            redisClient.hset(RedisAskHashTable,askItem.price,calculateVol);
+            const calculateVol = askItem.qty / volumeCalculate;
+            self.redisClient.hset(RedisAskHashTable,askItem.price,calculateVol);
           });
         }
 
         if(parseOrderbook[1].DIFF.BID.length > 0) {
-          redisClient.del(RedisBidHashTable);
+          self.redisClient.del(RedisBidHashTable);
 
           bid_price.forEach(bidItem => {
-            let calculateVol = bidItem.qty / volumeCalculate;
-            redisClient.hset(RedisBidHashTable,bidItem.price,calculateVol);
+            const calculateVol = bidItem.qty / volumeCalculate;
+            self.redisClient.hset(RedisBidHashTable,bidItem.price,calculateVol);
           });
         }
       }
@@ -136,20 +136,19 @@ CoinoneWS.prototype.checkHeartBeat = function() {
   const wsclient = new wsClient(this.WebsocketURL, coinoneConfig.connection_option);
 
   const RedisHeartBeatTable = `${this.Market}_HEARTBEAT`;
-  const redisClient         = redis.createClient(config.redisConfig);
 
   // websocket client start.
   wsclient.start();
 
   wsclient.on("connect", function(connection){
     console.log(`${self.Market} Websocket Client Connected, HeartBeat Check`);
-    redisClient.set(RedisHeartBeatTable, true);
+    self.redisClient.set(RedisHeartBeatTable, true);
 
   });
   
   wsclient.on("reconnect",function(){
     console.log(`${self.Market} Websocket Reconnecting...`);
-    redisClient.set(RedisHeartBeatTable, false);
+    self.redisClient.set(RedisHeartBeatTable, false);
 
   });
 

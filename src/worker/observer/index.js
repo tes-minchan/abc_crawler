@@ -1,41 +1,22 @@
+const sleep = require('sleep');
+
 const fileSave       = require('./fileSave');
-const redisClient    = require('lib/redis');
 const makeRedisTable = require('lib/worker/makeRedisTable');
 
-const observer = (redisTable) => {
+const allPricesDaemon = require('./allPrices');
+const arbInfoDaemon   = require('./arbInfo');
 
-  let enableSave = true;
-  redisClient.getMultiTable(redisTable)
-  .then(async (res) => {
-    if(enableSave) {
-      enableSave = false;
-      
-      await fileSave.fileUpdateCryptoObserve(res, redisTable);  
-      enableSave = true;
-
-    }
-
-  });
-}
 
 async function main() {
   const redisTable = await makeRedisTable.getCoinTable();
-  setInterval(observer, 1000, redisTable);
+  const allPriceSaver = new fileSave('allPrice');
+  setInterval(allPricesDaemon, 1000, allPriceSaver, redisTable);
+
+  sleep.sleep(1);
+  const arbInfoSaver  = new fileSave('arbInfo');
+  setInterval(arbInfoDaemon, 1000, arbInfoSaver, redisTable);
+
+
 }
 
 main();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

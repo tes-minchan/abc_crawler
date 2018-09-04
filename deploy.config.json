@@ -2,7 +2,7 @@
   "apps": [
     {
       "name": "crawler",
-      "script": "./src",
+      "script": "./src/worker/crawler",
       "env": {
         "NODE_PATH": "src"
       },

@@ -11,7 +11,7 @@ makeRedisTable.prototype.getCoinTable = function() {
   return new Promise((resolve)=> {
     let redis_table = [];
 
-    marketConfig.marketList.forEach(market => {
+    marketConfig.marketListKorea.forEach(market => {
       marketConfig[market].crawl_list.forEach(coin => {
         redis_table.push(['hgetall',`${market.toUpperCase()}_${coin}KRW_ASK`]);
         redis_table.push(['hgetall',`${market.toUpperCase()}_${coin}KRW_BID`]);

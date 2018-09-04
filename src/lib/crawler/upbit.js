@@ -32,6 +32,7 @@ function UpbitWS () {
 
   this.Market       = "UPBIT";
   this.WebsocketURL = "wss://api.upbit.com/websocket/v1";
+  this.redisClient  = redis.createClient(config.redisConfig);
 
 }
 
@@ -39,7 +40,6 @@ UpbitWS.prototype.getQuotes = function() {
 
   const self        = this;
   const wsclient    = new wsClient(this.WebsocketURL, upbitConfig.connection_option);
-  const redisClient = redis.createClient(config.redisConfig);
 
   // websocket client start.
   wsclient.start();
@@ -80,12 +80,12 @@ UpbitWS.prototype.getQuotes = function() {
     const RedisAskHashTable = `${self.Market}_${splitCurrency[1]}${splitCurrency[0]}_ASK`;
     const RedisBidHashTable = `${self.Market}_${splitCurrency[1]}${splitCurrency[0]}_BID`;
 
-    redisClient.del(RedisAskHashTable);
-    redisClient.del(RedisBidHashTable);
+    self.redisClient.del(RedisAskHashTable);
+    self.redisClient.del(RedisBidHashTable);
 
     parseData.orderbook_units.forEach(orderbook => {
-      redisClient.hset(RedisAskHashTable,orderbook.ask_price,orderbook.ask_size);
-      redisClient.hset(RedisBidHashTable,orderbook.bid_price,orderbook.bid_size);
+      self.redisClient.hset(RedisAskHashTable,orderbook.ask_price,orderbook.ask_size);
+      self.redisClient.hset(RedisBidHashTable,orderbook.bid_price,orderbook.bid_size);
     });
 
   });
@@ -103,20 +103,19 @@ UpbitWS.prototype.checkHeartBeat = function() {
   const wsclient = new wsClient(this.WebsocketURL, upbitConfig.connection_option);
 
   const RedisHeartBeatTable = `${this.Market}_HEARTBEAT`;
-  const redisClient         = redis.createClient(config.redisConfig);
 
   // websocket client start.
   wsclient.start();
 
   wsclient.on("connect", function(connection){
     console.log(`${self.Market} Websocket Client Connected, HeartBeat Check`);
-    redisClient.set(RedisHeartBeatTable, true);
+    self.redisClient.set(RedisHeartBeatTable, true);
 
   });
   
   wsclient.on("reconnect",function(){
     console.log(`${self.Market} Websocket Reconnecting...`);
-    redisClient.set(RedisHeartBeatTable, false);
+    self.redisClient.set(RedisHeartBeatTable, false);
 
   });
 
