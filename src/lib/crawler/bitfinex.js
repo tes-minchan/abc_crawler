@@ -28,13 +28,15 @@ const wsClient = require('ws-reconnect');
 
 const config = require('config');
 const bitfinexConfig = config.marketConfig.bitfinex;
+const heartBeatInterval = 60000;
 
 function BitfinexWS () {
 
   this.Market        = "BITFINEX";
   this.WebsocketURL  = "wss://api.bitfinex.com/ws/2";
   this.redisClient   = redis.createClient(config.redisConfig);
-
+  this.RedisHeartBeatTable = `${this.Market}_HEARTBEAT`;
+  this.heartBeatTimestamp  = new Date().getTime();
 }
 
 BitfinexWS.prototype.getQuotes = function() {
@@ -42,6 +44,24 @@ BitfinexWS.prototype.getQuotes = function() {
   const self        = this;
   const wsclient    = new wsClient(this.WebsocketURL, bitfinexConfig.connection_option);
   let subscribeInfo = {};
+
+  // websocket heartBeat func.
+  const heartBeat = (ws) => {
+    const curr = new Date().getTime();
+
+    if(heartBeatInterval < (curr - this.heartBeatTimestamp)) {
+      self.redisClient.set(this.RedisHeartBeatTable, false);
+    }
+    else {
+      self.redisClient.set(this.RedisHeartBeatTable, true);
+    }
+
+    const heartBeat = JSON.stringify({
+      event : 'ping'
+    });
+
+    ws.socket.send(heartBeat);
+  }
 
   // websocket client start.
   wsclient.start();
@@ -60,18 +80,24 @@ BitfinexWS.prototype.getQuotes = function() {
       wsclient.socket.send(subscribe);
       sleep.msleep(100);
     });
+
+    setInterval(heartBeat, heartBeatInterval, wsclient);
   });
 
   wsclient.on("message",(data) => {
     var parseJson = JSON.parse(data.toString());
 
-    if(parseJson.event === 'info' || parseJson[1] === 'hb') {
+    if(parseJson.event === 'info' || parseJson[1] === 'hb' || parseJson.event === 'pong') {
+      if(parseJson.event === 'pong') {
+        this.heartBeatTimestamp = parseJson.ts;
+      }
       return;
     }
     else if(parseJson.event === 'subscribed') {
       subscribeInfo[parseJson.chanId] = parseJson;
     }
     else {
+
       // orderbook.
       const coinId = parseJson[0];
       const orderbook = parseJson[1];
@@ -145,5 +171,6 @@ BitfinexWS.prototype.getQuotes = function() {
   });
 
 }
+
 
 module.exports = BitfinexWS
